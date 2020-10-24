@@ -69,6 +69,50 @@ default_days    = 730
 
 也可以修改 `gen.cert.sh` 来自定义你的网站证书组织。
 
+## 生成p12证书
+根据 
+```
+out/<domain>/<domain>.bundle.crt或者out/<domain>/<domain>.crt 和  out/<domain>/<domain>.key.pem生成springboot所需要的私钥格式文件p12证书：
+```
+
+```
+openssl pkcs12 -export -clcerts -in iop.com.bundle.crt  -inkey iop.com.key.pem -out iop.p12
+```
+输入完命令后回车会出现提示输入一个密码,密码非常重要,一定要记住,后面会用到!
+或者命令指定密码：
+```
+openssl pkcs12 -export -clcerts -in iop.com.bundle.crt  -inkey iop.com.key.pem -password pass:lsmsp123456 -out iop.p12
+
+```
+查询证书信息：
+```
+keytool -list -keystore iop.p12
+```
+输入密码，后得到：
+```
+密钥库类型: PKCS12
+密钥库提供方: SUN
+
+您的密钥库包含 1 个条目
+
+1, 2020-10-24, PrivateKeyEntry,
+证书指纹 (SHA1): 23:09:FB:00:C8:E4:DF:47:CF:A3:B9:B7:8D:59:81:12:25:82:C5:95
+```
+其中1就是别名(alias)
+
+比如springboot配置为：
+```
+server:
+  ssl:
+    key-store: classpath:ssl/iop.p12
+    key-store-password: lsmsp123456
+    key-store-type: PKCS12
+    key-alias: 1
+    enabled: true
+```
+
+
+
 ## 参考 / 致谢
 [Vault and self signed SSL certificates](http://dunne.io/vault-and-self-signed-ssl-certificates)
 
